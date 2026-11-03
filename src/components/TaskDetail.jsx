@@ -1,3 +1,4 @@
+import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
 import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 
@@ -29,60 +30,61 @@ function TaskDetail({ columns, onUpdateTask }) {
     navigate("/");
   }
 
-  return (
-    <div
-      onClick={() => navigate("/")}
-      className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
+   return (
+    <Dialog open={true} onClose={() => navigate("/")} className="relative z-50">
+      <DialogBackdrop className="fixed inset-0 bg-black/40" />
 
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+      <div className="fixed inset-0 flex items-center justify-center p-4">
+        <DialogPanel className="bg-white border border-sky-100 rounded-xl shadow-lg p-6 w-full max-w-md">
 
-        <p className="text-sm text-slate-500 mb-4">In column: {column.title}</p>
+          <DialogTitle className="sr-only">Edit task</DialogTitle>
 
-        <label className="block text-sm font-medium mb-1" htmlFor="title">Title</label>
+          <p className="text-sm text-slate-500 mb-4">In column: {column.title}</p>
 
-        <input
-          id="title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleSave();
-          }}
-          className="border rounded px-2 py-1 w-full text-sm mb-4"
-        />
+          <label className="block text-sm font-medium text-slate-700 mb-1" htmlFor="title">Title</label>
+          <input
+            id="title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSave();
+            }}
+            className="border border-sky-200 bg-white rounded px-2 py-1 w-full text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+          />
 
-        <label className="block text-sm font-medium mb-1" htmlFor="desc">Description</label>
-        <textarea
-          id="desc"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleSave();
-            }
-          }}
-          rows={5}
-          placeholder="Add more details..."
-          className="border rounded px-2 py-1 w-full text-sm mb-6"
-        />
+          <label className="block text-sm font-medium mb-1" htmlFor="desc">Description</label>
+          <textarea
+            id="desc"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSave();
+              }
+            }}
+            rows={5}
+            placeholder="Add more details..."
+            className="border border-sky-200 bg-white rounded px-2 py-1 w-full text-sm mb-6 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+          />
 
-        <div className="flex justify-end gap-2">
-          <button
-            onClick={() => navigate("/")}
-            className="px-3 py-1 rounded bg-slate-200 text-sm">
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            className="bg-blue-600 text-white rounded px-3 py-1 text-sm">
-            Save
-          </button>
-        </div>
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={() => navigate("/")}
+              className="px-3 py-1 rounded bg-slate-100 text-slate-600 hover:bg-slate-200 text-sm">
+              Cancel
+            </button>
 
+            <button
+              onClick={handleSave}
+              className="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 rounded px-3 py-1 text-sm">
+              Save
+            </button>
+          </div>
+
+        </DialogPanel>
       </div>
-    </div>
+    </Dialog>
   );
 }
 

@@ -76,6 +76,53 @@ function App() {
     });
   }
 
+  //move task in between
+  function moveTaskTo(taskId, toColumnId, index) {
+    setColumns((prev) => {
+      const fromColumn = prev.find((col) => col.tasks.some((t) => t.id === taskId));
+      const task = fromColumn?.tasks.find((t) => t.id === taskId);
+      if (!task) return prev;
+
+      const withoutTask = prev.map((col) =>
+        col.id === fromColumn.id
+          ? { ...col, tasks: col.tasks.filter((t) => t.id !== taskId) }
+          : col
+      );
+      return withoutTask.map((col) => {
+        if (col.id !== toColumnId) return col;
+        const tasks = [...col.tasks];
+        const position = index === undefined ? tasks.length : Math.min(index, tasks.length);
+        tasks.splice(position, 0, task);
+        return { ...col, tasks };
+      });
+    });
+  }
+
+  //reorder columns
+  function moveColumn(activeId, overId) {
+    setColumns((prev) => {
+      const from = prev.findIndex((col) => col.id === activeId);
+      const to = prev.findIndex((col) => col.id === overId);
+      if (from === -1 || to === -1 || from === to) return prev;
+      const next = [...prev];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return next;
+    });
+  }
+
+  //rename/edit column
+  function renameColumn(columnId, title) {
+    const cleanTitle = title.trim();
+    if (cleanTitle === "") return;
+
+    setColumns((prev) =>
+      prev.map((col) =>
+        col.id === columnId ? { ...col, title: cleanTitle } : col
+      )
+    );
+  }
+
   //delete column
   function deleteColumn(columnId) {
     const column = columns.find((col) => col.id === columnId);
@@ -119,10 +166,14 @@ function App() {
       onAddColumn={addColumn}
       onAddTask={addTask}
       onMoveTask={moveTask}
+      onMoveTaskTo={moveTaskTo}
+      onMoveColumn={moveColumn}
+      onRenameColumn={renameColumn}
       onDeleteColumn={deleteColumn}
       onDeleteTask={deleteTask}
     />
   );
+
 
   return (
     <Routes>
