@@ -4,10 +4,11 @@ import { SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-
 import { CSS } from "@dnd-kit/utilities";
 import TaskCard from "./TaskCard";
 
-function Column({ column, isSource, isOver, prevId, nextId, onAddTask, onMoveTask, onRenameColumn, onDeleteColumn, onDeleteTask }) {
+function Column({ column, onUpdateTask, isSource, isOver, prevId, nextId, onAddTask, onMoveTask, onRenameColumn, onDeleteColumn, onDeleteTask }) {
   const [text, setText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(column.title);
+  const [isAdding, setIsAdding] = useState(false);
   const renameRef = useRef(null);
 
   const {
@@ -55,7 +56,7 @@ function Column({ column, isSource, isOver, prevId, nextId, onAddTask, onMoveTas
 
   return (
     <div
-      
+
       ref={setNodeRef}
       style={style}
       className={`relative w-72 shrink-0 rounded-xl p-3 border-2 transition-colors ${isDragging
@@ -66,7 +67,7 @@ function Column({ column, isSource, isOver, prevId, nextId, onAddTask, onMoveTas
             ? "bg-sky-50 border-dashed border-sky-500"
             : "bg-sky-100/60 border-transparent"
         }`}>
-          {isSource && (
+      {isSource && (
         <p className="absolute -top-3 left-3 rounded bg-sky-500 px-2 py-0.5 text-[10px] font-medium text-white">
           Dragged from here
         </p>
@@ -130,27 +131,48 @@ function Column({ column, isSource, isOver, prevId, nextId, onAddTask, onMoveTas
               className="border rounded px-2 py-0.5 flex-1 min-w-0 text-sm font-semibold"
             />
           ) : (
-            <h2 className="font-semibold text-slate-700">{column.title}</h2>
+            <h2
+              onDoubleClick={startEdit}
+              title="Double-click to rename"
+              className="font-semibold text-slate-700 cursor-text">
+              {column.title}
+            </h2>
           )}
         </div>
 
-        {/* input row and add button */}
-        <div className="flex gap-2 mb-3">
-          <input
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleAdd();
-            }}
-            placeholder="New task..."
-            className="border border-sky-200 bg-white rounded px-2 py-1 flex-1 min-w-0 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200"
-          />
+        {isAdding ? (
+          <div className="mt-3">
+            <input
+              autoFocus
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleAdd();
+                if (e.key === "Escape") { setText(""); setIsAdding(false); }
+              }}
+              placeholder="Enter a task title..."
+              className="border border-sky-200 bg-white rounded px-2 py-1 w-full text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200"
+            />
+            <div className="flex gap-2 mt-2">
+              <button
+                onClick={handleAdd}
+                className="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 rounded px-3 py-1 text-sm">
+                Add task
+              </button>
+              <button
+                onClick={() => { setText(""); setIsAdding(false); }}
+                className="px-3 py-1 rounded bg-slate-100 text-slate-600 hover:bg-slate-200 text-sm">
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
           <button
-            onClick={handleAdd}
-            className="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 rounded px-3 py-1 text-sm">
-            Add
+            onClick={() => setIsAdding(true)}
+            className="mt-3 w-full rounded px-2 py-1.5 text-left text-sm text-slate-500 hover:bg-sky-200/60">
+            + Add a task
           </button>
-        </div>
+        )}
 
         <SortableContext
           items={column.tasks.map((t) => t.id)}
@@ -160,6 +182,7 @@ function Column({ column, isSource, isOver, prevId, nextId, onAddTask, onMoveTas
               <TaskCard
                 key={task.id}
                 task={task}
+                onSetPriority={(p) => onUpdateTask(task.id, { priority: p })}
                 hasPrev={Boolean(prevId)}
                 hasNext={Boolean(nextId)}
                 onPrev={() => onMoveTask(task.id, column.id, prevId)}

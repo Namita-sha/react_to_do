@@ -12,6 +12,7 @@ function TaskDetail({ columns, onUpdateTask }) {
 
   const [title, setTitle] = useState(task?.text ?? "");
   const [description, setDescription] = useState(task?.description ?? "");
+  const [priority, setPriority] = useState(task?.priority ?? "medium");
 
   if (!task) {
     return (
@@ -26,11 +27,11 @@ function TaskDetail({ columns, onUpdateTask }) {
   function handleSave() {
     const cleanTitle = title.trim();
     if (cleanTitle === "") return;
-    onUpdateTask(task.id, { text: cleanTitle, description: description.trim() });
+    onUpdateTask(task.id, { text: cleanTitle, description: description.trim(), priority });
     navigate("/");
   }
 
-   return (
+  return (
     <Dialog open={true} onClose={() => navigate("/")} className="relative z-50">
       <DialogBackdrop className="fixed inset-0 bg-black/40" />
 
@@ -58,8 +59,7 @@ function TaskDetail({ columns, onUpdateTask }) {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
+              if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
                 handleSave();
               }
             }}
@@ -67,7 +67,21 @@ function TaskDetail({ columns, onUpdateTask }) {
             placeholder="Add more details..."
             className="border border-sky-200 bg-white rounded px-2 py-1 w-full text-sm mb-6 focus:outline-none focus:ring-2 focus:ring-indigo-200"
           />
-
+          <p className="block text-sm font-medium mb-1">Priority</p>
+          <div className="flex gap-2 mb-6">
+            {["high", "medium", "low"].map((p) => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => setPriority(p)}
+                className={`px-3 py-1 rounded text-sm capitalize border ${priority === p
+                    ? "bg-indigo-100 text-indigo-700 border-indigo-300"
+                    : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                  }`}>
+                {p}
+              </button>
+            ))}
+          </div>
           <div className="flex justify-end gap-2">
             <button
               onClick={() => navigate("/")}

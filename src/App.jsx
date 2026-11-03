@@ -29,10 +29,11 @@ function App() {
 
   //add task
   function addTask(columnId, text) {
+
     const cleanText = text.trim();
     if (cleanText === "") return;
 
-    const newTask = { id: crypto.randomUUID(), text: cleanText };
+    const newTask = { id: crypto.randomUUID(), text: cleanText, priority: "medium" };
 
     setColumns((prev) =>
       prev.map((col) =>
@@ -164,6 +165,7 @@ function App() {
     <Board
       columns={columns}
       onAddColumn={addColumn}
+      onUpdateTask={updateTask}
       onAddTask={addTask}
       onMoveTask={moveTask}
       onMoveTaskTo={moveTaskTo}
