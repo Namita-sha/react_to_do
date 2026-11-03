@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -5,7 +6,18 @@ import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/react";
 
 function TaskCard({ task, onSetPriority, hasPrev, hasNext, onPrev, onNext, onDelete }) {
   const navigate = useNavigate();
+  const [copied, setCopied] = useState(false);
 
+  function handleCopyLink() {
+    const link = `${window.location.origin}/task/${task.id}`;
+    navigator.clipboard.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }
+
+  function handleEdit() {
+    navigate(`/task/${task.id}`);
+  }
   const {
     attributes,
     listeners,
@@ -41,13 +53,48 @@ function TaskCard({ task, onSetPriority, hasPrev, hasNext, onPrev, onNext, onDel
       <div className="flex justify-between items-start gap-2 mb-2">
         <p className="wrap-break-word min-w-0 text-slate-700">{task.text}</p>
 
-        <button
-          onClick={(e) => { e.stopPropagation(); onDelete(); }}
-          aria-label="Delete task"
-          className="text-slate-400 hover:text-rose-500 text-sm leading-none">
-          ×
-        </button>
+        <Menu>
+          <MenuButton
+            aria-label="Task options"
+            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="px-1.5 rounded text-slate-400 hover:bg-slate-100 hover:text-slate-600 leading-none">
+            ⋮
+          </MenuButton>
+
+          <MenuItems
+            anchor="bottom end"
+            onClick={(e) => e.stopPropagation()}
+            className="z-50 w-36 rounded-md border border-slate-200 bg-white p-1 text-sm shadow-lg focus:outline-none">
+            <MenuItem>
+              <button
+                onClick={handleEdit}
+                className="block w-full rounded px-3 py-1.5 text-left text-slate-700 data-[focus]:bg-sky-50">
+                Edit
+              </button>
+            </MenuItem>
+
+            <MenuItem>
+              <button
+                onClick={handleCopyLink}
+                className="block w-full rounded px-3 py-1.5 text-left text-slate-700 data-[focus]:bg-sky-50">
+                Copy link
+              </button>
+            </MenuItem>
+
+            <MenuItem>
+              <button
+                onClick={onDelete}
+                className="block w-full rounded px-3 py-1.5 text-left text-rose-600 data-[focus]:bg-rose-50">
+                Delete
+              </button>
+            </MenuItem>
+          </MenuItems>
+        </Menu>
       </div>
+      {copied && (
+        <p className="mb-2 text-xs text-emerald-600">Link copied</p>
+      )}
 
       <Menu>
         <MenuButton
